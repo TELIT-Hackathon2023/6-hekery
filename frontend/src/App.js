@@ -28,7 +28,7 @@ function App() {
       <aside className="w-1/4 bg-white shadow">
       <PdfUpload />
       </aside>
-      <main className="w-3/4 p-4">
+      <main className="w-3/4 pl-6">
         <header className="flex justify-between items-center p-4 shadow">
           <h1 className="text-4xl text-blue-600">Sales CoPilot</h1>
           <nav>

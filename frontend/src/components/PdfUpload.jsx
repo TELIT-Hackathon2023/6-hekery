@@ -8,7 +8,7 @@ const PdfUpload = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const { updateSummary } = useContext(SummaryContext);
-
+  const [isLoading, setIsLoading] = useState(false);
   // Fetch PDF texts
   const fetchPdfTexts = async () => {
     try {
@@ -52,7 +52,7 @@ const PdfUpload = () => {
 
   // Handle PDF click for summarization
   const handlePdfClick = async (pdfId) => {
- 
+    setIsLoading(true); 
     try {
       const response = await axios.post('/summarize_pdf', { pdf_text_id: pdfId });
       updateSummary(response.data.summary);  // Ensure this matches the response structure
@@ -60,7 +60,7 @@ const PdfUpload = () => {
       console.error('Failed to summarize PDF:', error);
       updateSummary('Summarization failed');
     }
-
+    setIsLoading(false); 
   };
 
   useEffect(() => {
@@ -69,6 +69,7 @@ const PdfUpload = () => {
 
   return (
     <div className="w-64 fixed top-0 left-0 bottom-0 bg-gray-800 p-6 overflow-y-auto">
+      {isLoading && <LoadingIndicator />}
       <h2 className="text-md font-bold text-white mb-8">Upload RFP Document</h2>
       <div className="flex flex-col items-center">
         <label className="bg-blue-500 w-full text-center items-center cursor-pointer hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
