@@ -5,6 +5,8 @@ const PdfUpload = () => {
   const [pdfTexts, setPdfTexts] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedPdfTextId, setSelectedPdfTextId] = useState(null);
+  const [summary, setSummary] = useState('');
 
   const fetchPdfTexts = async () => {
     try {
@@ -44,12 +46,23 @@ const PdfUpload = () => {
     }
   };
 
+  const summarizePdfText = async (pdfTextId) => {
+    setSelectedPdfTextId(pdfTextId);
+    try {
+      const response = await axios.post('/summarize_pdf', { pdf_text_id: pdfTextId });
+      setSummary(response.data.summary); // Store the summary in state
+    } catch (error) {
+      console.error('Failed to summarize PDF text:', error);
+      setSummary(''); // Clear previous summary on error
+    }
+  };
+
   useEffect(() => {
     fetchPdfTexts();
   }, []);
 
   return (
-    <div className="p-10 m-auto text-white">
+    <div className="p-10 m-auto text-black">
       <input
         type="file"
         accept=".pdf"
@@ -67,11 +80,19 @@ const PdfUpload = () => {
           <ul>
             {pdfTexts.map((text) => (
               <li key={text.id}>
-
                 {text.filename}
+                <button onClick={() => summarizePdfText(text.id)}>
+                  Summarize
+                </button>
                 <button onClick={() => deletePdfText(text.id)}>
                   Delete
                 </button>
+                {selectedPdfTextId === text.id && summary && (
+                  <div>
+                    <p>Summary:</p>
+                    <p>{summary}</p>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
