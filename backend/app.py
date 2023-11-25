@@ -5,7 +5,7 @@ from flask_migrate import Migrate
 from PyPDF2 import PdfReader
 import re
 import openai
-
+from summarization import summarizate
 
 # Configure OpenAI with your API Key
 
@@ -82,20 +82,13 @@ def summarize_pdf():
 
     try:
         # Truncate the text to fit within the token limit
-        truncated_text = pdf_text_record.text[:4000]  # Adjust as needed
+        summarized_text = summarizate(pdf_text_record.text)
 
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=f"Summarize the following text:\n\n{truncated_text}",
-            max_tokens=150
-        )
-        summary = response.choices[0].text.strip()
-
-        new_summary = PdfSummary(summary_text=summary, pdf_text_id=pdf_text_id)
+        new_summary = PdfSummary(summary_text=summarized_text, pdf_text_id=pdf_text_id)
         db.session.add(new_summary)
         db.session.commit()
 
-        return jsonify({"summary": summary})
+        return jsonify({"summary": summarized_text})
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": "An error occurred during summarization"}), 500
