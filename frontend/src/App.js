@@ -24,12 +24,12 @@ function App() {
 
   return (
     <SummaryProvider>
-    <div className="App bg-gray-100 min-h-screen flex">
+    <div className="App bg-gray-100 h-screen w-full flex">
       <aside className="w-1/4 bg-white shadow">
       <PdfUpload />
       </aside>
-      <main className="w-3/4 pl-6">
-        <header className="flex justify-between items-center p-4 shadow">
+      <main className="w-3/4">
+        <header className="flex w-full justify-between items-center p-4 shadow">
           <h1 className="text-4xl text-blue-600">Sales CoPilot</h1>
           <nav>
             <button className="p-2 m-2" onClick={() => setActiveTab('summary')}>Summary</button>
