@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { SummaryContext } from '../context/SummaryContext';
+import LoadingIndicator from './LoadingIndicator'; // Import the LoadingIndicator component
 
 const PdfUpload = () => {
   const [pdfTexts, setPdfTexts] = useState([]);
@@ -51,6 +52,7 @@ const PdfUpload = () => {
 
   // Handle PDF click for summarization
   const handlePdfClick = async (pdfId) => {
+ 
     try {
       const response = await axios.post('/summarize_pdf', { pdf_text_id: pdfId });
       updateSummary(response.data.summary);  // Ensure this matches the response structure
@@ -58,6 +60,7 @@ const PdfUpload = () => {
       console.error('Failed to summarize PDF:', error);
       updateSummary('Summarization failed');
     }
+
   };
 
   useEffect(() => {
@@ -69,8 +72,15 @@ const PdfUpload = () => {
       <h2 className="text-md font-bold text-white mb-8">Upload RFP Document</h2>
       <div className="flex flex-col items-center">
         <label className="bg-blue-500 w-full text-center items-center cursor-pointer hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          <span className="mt-2 text-base leading-normal">Select a file</span>
-          <input type='file' className="hidden" onChange={(e) => setSelectedFile(e.target.files[0])} />
+          <span className="mt-2 text-base leading-normal">
+            {isUploading && selectedFile ? `Uploading: ${selectedFile.name.substring(0, 10)}...` : 'Select a file'}
+          </span>
+          <input 
+            type='file' 
+            className="hidden" 
+            onChange={(e) => setSelectedFile(e.target.files[0])} 
+            disabled={isUploading} // Disable input while uploading
+          />
         </label>
         <button
           className="bg-blue-500 w-full my-2 cursor-pointer hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -84,21 +94,20 @@ const PdfUpload = () => {
         {pdfTexts.length > 0 && (
           <ul className="space-y-4">
             {pdfTexts.map((text) => (
-              <li key={text.id} className="bg-white text-gray-800 p-4 rounded shadow">
-                <div className="flex items-center justify-between">
-                  <span
-                    className="font-medium cursor-pointer"
-                    onClick={() => handlePdfClick(text.id)}
-                  >
-                    {text.filename}
-                  </span>
-                  <button
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 transition duration-300 ease-in-out"
-                    onClick={() => deletePdfText(text.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
+              <li key={text.id} className="bg-white text-gray-800 p-4 rounded shadow relative">
+                <span
+                  className="font-medium cursor-pointer"
+                  onClick={() => handlePdfClick(text.id)}
+                >
+                  {text.filename.substring(0, 8)}...
+                </span>
+                <button
+                  className="absolute top-0 right-0 text-red-500 hover:text-red-600 transition duration-300 ease-in-out"
+                  onClick={() => deletePdfText(text.id)}
+                  style={{ top: '10px', right: '10px' }}
+                >
+                  X
+                </button>
               </li>
             ))}
           </ul>
@@ -108,4 +117,4 @@ const PdfUpload = () => {
   );
 };
 
-export default PdfUpload;
+export default PdfUpload; 

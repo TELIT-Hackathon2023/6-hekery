@@ -5,10 +5,10 @@ import SummaryMain from './components/Summary/SummaryMain';
 import MatchingScore from './components/Score/ScoreMain.jsx';
 import MatchingDashboard from './components/Dashboard/DashboardMain.jsx';
 import { SummaryProvider } from './context/SummaryContext.js';
+
 function App() {
   const [activeTab, setActiveTab] = useState('summary'); // State to keep track of the active tab
-
-  // Function to render content based on the active tab
+ 
   const renderContent = () => {
     switch (activeTab) {
       case 'summary':
@@ -26,7 +26,7 @@ function App() {
     <SummaryProvider>
     <div className="App bg-gray-100 min-h-screen flex">
       <aside className="w-1/4 bg-white shadow">
-        <PdfUpload />
+      <PdfUpload />
       </aside>
       <main className="w-3/4 p-4">
         <header className="flex justify-between items-center p-4 shadow">
