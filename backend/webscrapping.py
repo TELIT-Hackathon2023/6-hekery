@@ -6,18 +6,18 @@ from reportlab.pdfgen import canvas
 from reportlab.lib import pagesizes
 
 def get_links(url, domain):
-    """Get all links from a webpage within the same domain."""
+    """Get all links from a webpage within the same domain, including only English language."""
     links = set()
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
     for link in soup.find_all('a', href=True):
         href = link['href']
-        if domain in href:
-            links.add(href)
-        else:
-            # Join relative URL
-            links.add(urljoin(url, href))
+        # Include links if they contain language codes for English
+        if '/en' in href:
+            full_link = urljoin(url, href) if 'http' not in href else href
+            if domain in full_link:
+                links.add(full_link)
 
     return links
 
@@ -26,20 +26,23 @@ def scrape_text(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    text = ' '.join([p.get_text() for p in soup.find_all('p')])
+    # Collect text while preserving paragraphs
+    paragraphs = [p.get_text() for p in soup.find_all('p')]
+    text = '\n\n'.join(paragraphs)
     return text
-
 def wrap_text(text, width, canvas):
-    """Wrap text to fit within a given width."""
+    """Wrap text to fit within a given width, preserving paragraphs."""
     wrapped_text = []
-    line = ''
-    for word in text.split():
-        if canvas.stringWidth(line + ' ' + word) < width:
-            line = line + ' ' + word if line else word
-        else:
-            wrapped_text.append(line)
-            line = word
-    wrapped_text.append(line)
+    for paragraph in text.split('\n\n'):
+        line = ''
+        for word in paragraph.split():
+            if canvas.stringWidth(line + ' ' + word) < width:
+                line = line + ' ' + word if line else word
+            else:
+                wrapped_text.append(line)
+                line = word
+        wrapped_text.append(line)
+        wrapped_text.append('')  # Add a blank line to separate paragraphs
     return wrapped_text
 
 def add_to_pdf(c, url, text, y):
