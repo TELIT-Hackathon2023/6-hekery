@@ -20,6 +20,8 @@ class PdfText(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text)
     filename = db.Column(db.String(255))
+    # Define the relationship here with cascade delete behavior
+    summaries = db.relationship('PdfSummary', backref='pdf_text', lazy=True, cascade="all, delete-orphan")
 
     def __init__(self, text, filename):
         self.text = text
@@ -29,8 +31,7 @@ class PdfSummary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     summary_text = db.Column(db.Text)
     pdf_text_id = db.Column(db.Integer, db.ForeignKey('pdf_text.id'), nullable=False)
-
-    pdf_text = db.relationship('PdfText', backref=db.backref('summary', lazy=True))
+    # No need for an additional relationship definition here
 
 @app.route('/upload_pdf', methods=['POST'])
 def upload_pdf():
@@ -62,7 +63,7 @@ def delete_pdf_text(pdf_text_id):
     if pdf_text:
         db.session.delete(pdf_text)
         db.session.commit()
-        return jsonify({"message": "PDF Text deleted."}), 200
+        return jsonify({"message": "PDF Text and its summary deleted."}), 200
     else:
         return jsonify({"message": "PDF Text not found"}), 404
 
