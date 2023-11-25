@@ -5,12 +5,9 @@ from flask_migrate import Migrate
 from PyPDF2 import PdfReader
 import re
 import openai
-from dotenv import load_dotenv
-load_dotenv()
 
 
 # Configure OpenAI with your API Key
-openai.api_key = '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',
 
 app = Flask(__name__)
 CORS(app)
@@ -83,14 +80,16 @@ def summarize_pdf():
         return jsonify({"error": "PDF text not found"}), 404
 
     try:
+        # Truncate the text to fit within the token limit
+        truncated_text = pdf_text_record.text[:4000]  # Adjust as needed
+
         response = openai.Completion.create(
             engine="text-davinci-003",
-            prompt=f"Summarize the following text:\n\n{pdf_text_record.text}",
+            prompt=f"Summarize the following text:\n\n{truncated_text}",
             max_tokens=150
         )
         summary = response.choices[0].text.strip()
 
-        # Save the summary to the database
         new_summary = PdfSummary(summary_text=summary, pdf_text_id=pdf_text_id)
         db.session.add(new_summary)
         db.session.commit()

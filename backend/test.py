@@ -1,7 +1,7 @@
 import openai
 
 # Set the API key directly
-openai.api_key = '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'
+openai.api_key = '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'
 
 response = openai.Completion.create(
     engine="gpt-3.5-turbo-instruct",
