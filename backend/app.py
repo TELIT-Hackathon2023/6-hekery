@@ -1,18 +1,20 @@
+import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from PyPDF2 import PdfReader
-import pandas as pd
 import re
 import openai
+import sklearn
+import pandas as pd
 #from prettier import pretty
 from summarization import summarizate
-from joblib import load
-# Load your trained model
-model = load('model/my_model.joblib')
 
 # Configure OpenAI with your API Key
+from joblib import load
+# Load your trained model
+
 
 app = Flask(__name__)
 CORS(app)
@@ -20,7 +22,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:heslo@localhost/h
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
+model = load('model/my_model.joblib')
 class PdfText(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text)
@@ -118,48 +120,43 @@ def get_pdf_summary(pdf_text_id):
         return jsonify({"summary": pdf_summary.summary_text, "already_summarized": True})
     else:
         return jsonify({"summary": "", "already_summarized": False})
-
+    
 @app.route('/get_input_data/<int:pdf_text_id>', methods=['GET'])
 def input_data(pdf_text_id):
-    pdf_text = PdfText.query.get(pdf_text_id)
-    if pdf_text:
-        summaries = PdfSummary.query.filter_by(pdf_text_id=pdf_text_id).all()
-        output = [{'id': summary.id, 'summary_text': summary.summary_text} for summary in summaries]
-    else:
-        return jsonify({"message": "PDF Text not found"}), 404
+    pdf_summary = PdfSummary.query.filter_by(pdf_text_id=pdf_text_id).first()
+    if pdf_summary:
+        summary_text = pdf_summary.summary_text
+        
+        # Define patterns for each parameter
+    patterns = {
+        'ProblemStatement': r"Problem Statement:.*?Score: (\d+)",
+        'ScopeOfWork': r"Scope of Work:.*?Score: (\d+)",
+        'RequiredTechnologyStack': r"Required Technology Stack:.*?Score: (\d+)",
+        'PricingModel': r"Pricing Model:.*?Score: (\d+)",
+        'ServiceLevelAgreements': r"Service Level Agreements \(SLAs\):.*?Score: (\d+)",
+        'SelectionCriteria': r"Selection Criteria:.*?Score: (\d+)",
+        'Timelines': r"Timelines:.*?Score: (\d+)",
+        'ContactDetails': r"Contact Details:.*?Score: (\d+)",
+        'PenaltyClauses': r"Penalty Clauses:.*?Score: (\d+)",
+        'RequiredOfferType': r"Required Offer Type:.*?Score: (\d+)"
+    }
 
-    # Function to extract scores from summary text
-    def extract_score(summary_text, pattern):
+    # Extract and store the data
+    extracted_data = {}
+    for key, pattern in patterns.items():
         match = re.search(pattern, summary_text)
         if match:
             score = match.group(1)
-            return float(score.split('/')[0]) / float(score.split('/')[1])
+            score_value = score
+            extracted_data[key] = score_value
         else:
-            return None
-
-    # Extract scores for each parameter
-    scores = {
-        'ScopeOfWork': None,
-        'RequiredTechnologyStack': None,
-        'PricingModel': None,
-        'ServiceLevelAgreements': None,
-        'SelectionCriteria': None,
-        'Timelines': None,
-        'ContactDetails': None,
-        'PenaltyClauses': None,
-        'RequiredOfferType': None
-    }
-
-    for item in output:
-        summary_text = item['summary_text']
-        for key in scores:
-            if scores[key] is None:  # Only extract if not already found
-                pattern = f"{key}:.*?Score: (\\d+/\\d+)"
-                scores[key] = extract_score(summary_text, pattern)
-
-    # Return the scores as a dictionary
-    return jsonify(scores)
-
+            extracted_data[key] = None  # or some default value
+    
+    if extracted_data:
+        return jsonify(extracted_data)
+    else:
+        return jsonify({"message": "PDF Summary not found"}), 404
+ 
 def predict_loan_payment(input_data):
     input_data = pd.DataFrame(input_data, index=[0])
     prediction = model.predict(input_data)  # Use the .predict() method
