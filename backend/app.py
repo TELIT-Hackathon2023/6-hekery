@@ -69,6 +69,17 @@ def delete_pdf_text(pdf_text_id):
         return jsonify({"message": "PDF Text not found"}), 404
 
 
+@app.route('/get_summary_db/<int:pdf_text_id>', methods=['GET'])
+def get_summary_db(pdf_text_id):
+    pdf_text = PdfText.query.get(pdf_text_id)
+    if pdf_text:
+        summaries = PdfSummary.query.filter_by(pdf_text_id=pdf_text_id).all()
+        output = [{'id': summary.id, 'summary_text': summary.summary_text} for summary in summaries]
+        return jsonify(output), 200
+    else:
+        return jsonify({"message": "PDF Text not found"}), 404
+
+
 @app.route('/summarize_pdf', methods=['POST'])
 def summarize_pdf():
     data = request.json
