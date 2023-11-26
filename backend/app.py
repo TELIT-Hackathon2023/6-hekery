@@ -105,6 +105,48 @@ def summarize_pdf():
         print(f"Error: {e}")
         return jsonify({"error": "An error occurred during summarization"}), 500
 
+@app.route('/get_input_data/<int:pdf_text_id>', methods=['GET'])
+def input_data(pdf_text_id):
+    pdf_text = PdfText.query.get(pdf_text_id)
+    if pdf_text:
+        summaries = PdfSummary.query.filter_by(pdf_text_id=pdf_text_id).all()
+        output = [{'id': summary.id, 'summary_text': summary.summary_text} for summary in summaries]
+    else:
+        return jsonify({"message": "PDF Text not found"}), 404
+
+    # Function to extract scores from summary text
+    def extract_score(summary_text, pattern):
+        match = re.search(pattern, summary_text)
+        if match:
+            score = match.group(1)
+            return float(score.split('/')[0]) / float(score.split('/')[1])
+        else:
+            return None
+
+    # Extract scores for each parameter
+    scores = {
+        'ScopeOfWork': None,
+        'RequiredTechnologyStack': None,
+        'PricingModel': None,
+        'ServiceLevelAgreements': None,
+        'SelectionCriteria': None,
+        'Timelines': None,
+        'ContactDetails': None,
+        'PenaltyClauses': None,
+        'RequiredOfferType': None
+    }
+
+    for item in output:
+        summary_text = item['summary_text']
+        for key in scores:
+            if scores[key] is None:  # Only extract if not already found
+                pattern = f"{key}:.*?Score: (\\d+/\\d+)"
+                scores[key] = extract_score(summary_text, pattern)
+
+    # Return the scores as a dictionary
+    return jsonify(scores)
+
+
 def init_db():
     db.create_all()
 
