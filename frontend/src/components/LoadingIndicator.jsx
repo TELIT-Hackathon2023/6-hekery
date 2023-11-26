@@ -6,7 +6,7 @@ const CustomLoadingIndicator = ({ loadingState }) => {
   const getLoaderColor = () => {
     switch (loadingState) {
       case 'analyzing':
-        return 'pink';
+        return 'red';
       case 'scoring':
         return '#e20274';
       case 'dashboard':
@@ -17,10 +17,10 @@ const CustomLoadingIndicator = ({ loadingState }) => {
   };
 
   return (
-    <div className="fixed inset-0 right-0 z-30   flex justify-center items-center">
-      <div className="flex flex-col items-center">
+    <div className="fixed inset-x-[56%]  inset-y-[70%] flex justify-between m-auto items-end">
+      <div className="flex flex-col  w-max items-center">
         <HashLoader color={getLoaderColor()} size={150} />
-        <p className="text-[#e20274] font-bold text-xl p-4 mt-4">
+        <p className=" w-max text-black font-bold text-xl p-4 mt-4">
           {loadingState === 'analyzing' && 'Analyzing PDF...'}
           {loadingState === 'scoring' && 'Calculating Scores...'}
           {loadingState === 'dashboard' && 'Building Dashboard...'}

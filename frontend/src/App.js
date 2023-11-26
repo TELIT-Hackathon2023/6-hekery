@@ -7,6 +7,9 @@ import MatchingDashboard from './components/Dashboard/DashboardMain.jsx';
 import { SummaryProvider } from './context/SummaryContext.js';
 import AOS from 'aos';
 import 'aos/dist/aos.css'; // Import AOS styles
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileLines } from '@fortawesome/free-regular-svg-icons';
+import { faChartLine, faListOl } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
   const [activeTab, setActiveTab] = useState('summary'); // State to keep track of the active tab
@@ -32,17 +35,17 @@ function App() {
 
   return (
     <SummaryProvider>
-    <div data-aos="fade-right" className="App bg-white h-screen  w-full flex">
+    <div data-aos="fade-right" className="App bg-white h-screen font-try   w-full flex">
       <aside  className="w-1/4 bg-white shadow-xl">
       <PdfUpload  />
       </aside>
       <main className="w-3/4">
         <header className="flex w-full justify-between items-center p-4 shadow">
-          <h1 className="text-4xl  text-white p-4 bg-[#e20274]">Sales CoPilot</h1>
+          <h1 className="text-4xl font-head text-center items-start  text-white p-4 bg-[#e20274]">Sales CoPilot</h1>
           <nav>
-            <button className="p-2 m-2 text-xl font-bold text-black hover:border-b-4 border-[#e20274]" onClick={() => setActiveTab('summary')}>Summary</button>
-            <button className="p-2 m-2 text-xl font-bold text-black hover:border-b-4 border-[#e20274]" onClick={() => setActiveTab('matching-score')}>Matching Score</button>
-            <button className="p-2 m-2 text-xl font-bold text-black hover:border-b-4 border-[#e20274]" onClick={() => setActiveTab('matching-dashboard')}>Matching Dashboard</button>
+            <button className="p-2 m-2 text-xl font-bold text-black hover:border-b-4 border-[#e20274]" onClick={() => setActiveTab('summary')}><FontAwesomeIcon className='mr-2 text-[#e20274]' icon={faFileLines} />Summary</button>
+            <button className="p-2 m-2 text-xl font-bold text-black hover:border-b-4 border-[#e20274]" onClick={() => setActiveTab('matching-score')}><FontAwesomeIcon className='mr-2 text-[#e20274]' icon={faListOl} />Matching Score</button>
+            <button className="p-2 m-2 text-xl font-bold text-black hover:border-b-4 border-[#e20274]" onClick={() => setActiveTab('matching-dashboard')}><FontAwesomeIcon className='mr-2 text-[#e20274]' icon={faChartLine} />Matching Dashboard</button>
           </nav>
         </header>
         <div className="content mt-4">

@@ -5,7 +5,7 @@ from flask_migrate import Migrate
 from PyPDF2 import PdfReader
 import re
 import openai
-from prettier import pretty
+#from prettier import pretty
 from summarization import summarizate
 
 # Configure OpenAI with your API Key
@@ -92,18 +92,28 @@ def summarize_pdf():
     if not pdf_text_record:
         return jsonify({"error": "PDF text not found"}), 404
 
+    # Check if the PDF already has a summary
+    existing_summary = PdfSummary.query.filter_by(pdf_text_id=pdf_text_id).first()
+    if existing_summary:
+        return jsonify({"summary": existing_summary.summary_text, "already_summarized": True})
+
     try:
-
         summarized_text = summarizate(pdf_text_record.text)
-
         new_summary = PdfSummary(summary_text=summarized_text, pdf_text_id=pdf_text_id)
         db.session.add(new_summary)
         db.session.commit()
-        pretty_text = pretty(summarized_text)
-        return jsonify({"summary": pretty_text})
+        return jsonify({"summary": summarized_text, "already_summarized": False})
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": "An error occurred during summarization"}), 500
+    
+@app.route('/pdf_summary/<int:pdf_text_id>', methods=['GET'])
+def get_pdf_summary(pdf_text_id):
+    pdf_summary = PdfSummary.query.filter_by(pdf_text_id=pdf_text_id).first()
+    if pdf_summary:
+        return jsonify({"summary": pdf_summary.summary_text, "already_summarized": True})
+    else:
+        return jsonify({"summary": "", "already_summarized": False})
 
 @app.route('/get_input_data/<int:pdf_text_id>', methods=['GET'])
 def input_data(pdf_text_id):
