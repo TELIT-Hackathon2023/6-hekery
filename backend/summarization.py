@@ -27,7 +27,6 @@ def summarizate(text):
     load_dotenv()
     summarize_text = ""
     api_key_openai = os.getenv('API_OPENAI')
-    print(api_key_openai)
     # Initialize OpenAI client
     client = openai.OpenAI(api_key=api_key_openai)
 
@@ -105,3 +104,4 @@ def summarizate(text):
     client.beta.assistants.delete(assistant.id)
 
     return summarize_text
+
