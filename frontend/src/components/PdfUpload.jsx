@@ -112,7 +112,7 @@ const PdfUpload = () => {
       <h2 className="text-2xl font-bold w-max m-auto text-black p-4 text-center mb-4">Upload RFP Document</h2>
       <div className="flex flex-col items-center">
       <div {...getRootProps()} className="dropzone text-[#e20274]  font-bold border-dashed border-2 border-[#e20274] py-8 px-4 rounded text-center cursor-pointer ">
-        <input {...getInputProps()} disabled={isUploading} />
+        <input {...getInputProps()} disabled={isUploading} /> 
         {selectedFile ? <p>{selectedFile.name.substring(0, 20) + (selectedFile.name.length > 20 ? '...' : '')}</p> : <p>Drag 'n' drop some files here, or click to select files</p>}   </div>
      
       <button

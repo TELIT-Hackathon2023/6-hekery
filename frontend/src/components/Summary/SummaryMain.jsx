@@ -4,7 +4,7 @@ import LoadingIndicator from '../LoadingIndicator'; // Import your loading indic
 
 const SummaryMain = () => {
   const { summary, isLoading } = useContext(SummaryContext);
-
+  
   const formattedSummary = summary.split('. ').map((sentence, index) => (
     <p key={index} className="mb-2">{sentence.trim()}.</p>
   ));

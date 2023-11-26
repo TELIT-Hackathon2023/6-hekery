@@ -9,8 +9,8 @@ const ScoreMain = () => {
 
 
   const calculateFinalScore = () => {
-    const scoreValues = Object.values(scores).filter(score => score !== "N/A" && score !== "Not Applicable");
-    const totalScore = scoreValues.reduce((acc, score) => acc + parseFloat(score), 0);
+    const scoreValues = Object.values(scores).filter(score => score !== "0" && score !== "Not Applicable");
+    const totalScore = scoreValues.reduce((acc, score) => acc + parseInt(score), 0);
     return (totalScore / scoreValues.length).toFixed(1);
   };
 
@@ -21,8 +21,8 @@ const ScoreMain = () => {
         {Object.entries(scores).map(([section, score]) => (
           <div key={section} className="flex justify-between items-center py-2 border-b">
             <span className="font-medium">{section}</span>
-            <span className={`font-bold ${score !== "N/A" && score !== "Not Applicable" && parseFloat(score) >= 7 ? 'text-green-500' : parseFloat(score) >= 4 ? 'text-yellow-500' : 'text-red-500'}`}>
-              {score !== "N/A" && score !== "Not Applicable" ? `${(parseFloat(score)).toFixed(1)}/10` : score}
+            <span className={`font-bold ${score !== "0" && score !== "Not Applicable" && parseFloat(score) >= 7 ? 'text-green-500' : parseFloat(score) >= 4 ? 'text-yellow-500' : 'text-red-500'}`}>
+              {score !== "0" && score !== "Not Applicable" ? `${(parseInt(score))}` : score}
             </span>
           </div>
         ))}
