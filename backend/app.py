@@ -6,15 +6,10 @@ from flask_migrate import Migrate
 from PyPDF2 import PdfReader
 import re
 import openai
-import sklearn
-import pandas as pd
 #from prettier import pretty
 from summarization import summarizate
 
 # Configure OpenAI with your API Key
-from joblib import load
-# Load your trained model
-
 
 app = Flask(__name__)
 CORS(app)
@@ -22,7 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:heslo@localhost/h
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-model = load('model/my_model.joblib')
+
 class PdfText(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text)
@@ -126,10 +121,9 @@ def input_data(pdf_text_id):
     pdf_summary = PdfSummary.query.filter_by(pdf_text_id=pdf_text_id).first()
     if pdf_summary:
         summary_text = pdf_summary.summary_text
-        
+
         # Define patterns for each parameter
     patterns = {
-        'ProblemStatement': r"Problem Statement:.*?Score: (\d+)",
         'ScopeOfWork': r"Scope of Work:.*?Score: (\d+)",
         'RequiredTechnologyStack': r"Required Technology Stack:.*?Score: (\d+)",
         'PricingModel': r"Pricing Model:.*?Score: (\d+)",
@@ -150,18 +144,13 @@ def input_data(pdf_text_id):
             score_value = score
             extracted_data[key] = score_value
         else:
-            extracted_data[key] = None  # or some default value
+            extracted_data[key] = 0  # or some default value
     
     if extracted_data:
         return jsonify(extracted_data)
     else:
         return jsonify({"message": "PDF Summary not found"}), 404
  
-def predict_loan_payment(input_data):
-    input_data = pd.DataFrame(input_data, index=[0])
-    prediction = model.predict(input_data)  # Use the .predict() method
-    return prediction[0]
-
 def init_db():
     db.create_all()
 

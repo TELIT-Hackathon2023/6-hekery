@@ -50,16 +50,19 @@ def summarizate(text):
     assistant = client.beta.assistants.create(
         name="Summarize Bot",
         instructions="""Your role is to evaluate Request for Proposals (RFPs) against a company's capabilities, 
-        with detailed scoring for each aspect. Begin with 'First of file' for the company profile, and then 'Second of 
-        file' for the RFP, concluding at 'End of file'. Focus solely on the text between these markers. After both texts 
-        are presented, assess whether the company can fulfill the RFP, scoring each aspect from 0 to 10. Maintain a 
-        professional tone. Evaluate these aspects of the RFP in relation to the company's capabilities: Problem 
-        Statement, Scope of Work, Required Technology Stack, Pricing Model, Service Level Agreements (SLAs), 
-        Selection Criteria, Timelines, Contact Details, Penalty Clauses, Required Offer Type. Clearly indicate if any 
-        aspect is not detailed in the RFP. Avoid partial summaries; complete your analysis only after reviewing both the 
-        company profile and RFP. This approach ensures a thorough and focused evaluation.""",
-        model="gpt-4",
-    )
+        with detailed scoring for each aspect. Begin with 'First of file' for the company profile, and then 'Second 
+        of file' for the RFP, concluding at 'End of file'. Focus solely on the text between these markers. After both 
+        texts are presented, assess whether the company can fulfill the RFP, scoring each aspect from 0 to 10(score 
+        must be at the end of each point, like that "Score:(number)" ). Maintain a professional tone. Evaluate these 
+        aspects of the RFP in relation to the company's capabilities: Problem Statement, Scope of Work, 
+        Required Technology Stack, Pricing Model, Service Level Agreements (SLAs), Selection Criteria, Timelines, 
+        Contact Details, Penalty Clauses, Required Offer Type. Clearly indicate if any aspect is not detailed in the 
+        RFP. Avoid partial summaries; complete your analysis only after reviewing both the company profile and RFP. 
+        This approach ensures a thorough and focused evaluation.""",
+    model="gpt-4",
+)
+
+
 
     # Create a thread
     thread = client.beta.threads.create()
