@@ -11,7 +11,7 @@ const SummaryMain = () => {
 
   return (
     <div data-aos="fade-up" className="summary-main-container  w-[90%] mt-10 m-auto -z-5 relative p-4 bg-white rounded-lg shadow-md">
-      {isLoading && <LoadingIndicator />} {/* Show loading indicator when isLoading is true */}
+      {isLoading && <LoadingIndicator className='z-40' />} {/* Show loading indicator when isLoading is true */}
       {!isLoading && (
         <>
           <h2 className="text-2xl text-center m-auto font-bold mb-4">Summarized Text</h2>
