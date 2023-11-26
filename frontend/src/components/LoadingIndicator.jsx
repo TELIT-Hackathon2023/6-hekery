@@ -17,7 +17,7 @@ const CustomLoadingIndicator = ({ loadingState }) => {
   };
 
   return (
-    <div className="fixed inset-x-[56%]  inset-y-[70%] flex justify-between m-auto items-end">
+    <div className="fixed inset-x-[56%]  inset-y-[30%] flex justify-between m-auto items-end">
       <div className="flex flex-col  w-max items-center">
         <HashLoader color={getLoaderColor()} size={150} />
         <p className=" w-max text-black font-bold text-xl p-4 mt-4">

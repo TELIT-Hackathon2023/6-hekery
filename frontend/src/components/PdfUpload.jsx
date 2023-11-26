@@ -6,12 +6,14 @@ import CustomLoadingIndicator from './LoadingIndicator';
 import { useDropzone } from 'react-dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons'
+import { ScoreContext } from '../context/ScoreContext';
 const PdfUpload = () => {
   const [pdfTexts, setPdfTexts] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const { updateSummary } = useContext(SummaryContext);
   const [loadingState, setLoadingState] = useState('');
+  const { updateScores } = useContext(ScoreContext); // Use ScoreContext
 
 
   const onDrop = useCallback(acceptedFiles => {
@@ -63,30 +65,40 @@ const PdfUpload = () => {
 };
   // Handle PDF click for summarization
   const handlePdfClick = async (pdfId) => {
+    setLoadingState('analyzing');
     try {
-      const response = await axios.get(`/pdf_summary/${pdfId}`);
-      if (response.data.already_summarized) {
-        // Load existing summary from database
-        updateSummary(response.data.summary);
+      // Check if the PDF has already been summarized
+      const summaryResponse = await axios.get(`/pdf_summary/${pdfId}`);
+      if (summaryResponse.data.already_summarized) {
+        // If already summarized, use existing summary
+        updateSummary(summaryResponse.data.summary);
       } else {
-        // Proceed with new summarization
-        setLoadingState('analyzing');
+        // If not, proceed with new summarization
         const summarizeResponse = await axios.post('/summarize_pdf', { pdf_text_id: pdfId });
         updateSummary(summarizeResponse.data.summary);
-        setLoadingState('scoring');
-        setTimeout(() => {
-          setLoadingState('dashboard');
-          setTimeout(() => {
-            setLoadingState(''); // Reset loading state
-          }, 2000);
-        }, 2000);
       }
+
+      // Fetch and update scores regardless of whether the summary was pre-existing or newly created
+      const scoreResponse = await axios.get(`/get_input_data/${pdfId}`);
+      if (scoreResponse.data) {
+        updateScores(scoreResponse.data); // Assuming updateScores is a method in your context/state to update the scores
+      }
+
+      // Update the loading state for UI feedback
+      setLoadingState('scoring');
+      setTimeout(() => {
+        setLoadingState('dashboard');
+        setTimeout(() => {
+          setLoadingState(''); // Reset loading state after simulating dashboard creation
+        }, 2000);
+      }, 2000);
     } catch (error) {
       console.error('Failed to handle PDF:', error);
       setLoadingState('');
       updateSummary('Error occurred');
     }
-  };
+};
+
   
 
   useEffect(() => {
