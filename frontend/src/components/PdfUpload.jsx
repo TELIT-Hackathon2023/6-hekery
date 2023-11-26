@@ -84,12 +84,12 @@ const PdfUpload = () => {
   }, []);
 
   return (
-    <div className="w-1/4 fixed top-0 left-0 bottom-0 bg-gray-800 p-6 overflow-y-auto">
-       {loadingState && <CustomLoadingIndicator loadingState={loadingState} />}
+    <div className="w-1/4 fixed top-0 left-0 bottom-0 bg-white text-white p-6 overflow-y-auto">
+       {loadingState && <CustomLoadingIndicator className='z-50' loadingState={loadingState} />}
 
-      <h2 className="text-md font-bold text-white mb-8">Upload RFP Document</h2>
+      <h2 className="text-xl font-bold w-max  text-black p-4 text-center mb-8">Upload RFP Document</h2>
       <div className="flex flex-col items-center">
-        <label className="bg-blue-500 w-full text-center items-center cursor-pointer hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <label className="bg-[#e20274] w-full text-center items-center cursor-pointer hover:bg-[#b43777] text-white font-bold py-2 px-4 rounded">
           <span className="mt-2 text-base leading-normal">
             {isUploading && selectedFile ? `Uploading: ${selectedFile.name.substring(0, 10)}...` : 'Select a file'}
           </span>
@@ -101,7 +101,7 @@ const PdfUpload = () => {
           />
         </label>
         <button
-          className="bg-blue-500 w-full my-2 cursor-pointer hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-[#e20274] w-full my-2 cursor-pointer hover:bg-[#b43777]  text-white font-bold py-2 px-4 rounded"
           onClick={uploadPdf}
           disabled={!selectedFile || isUploading}
         >
