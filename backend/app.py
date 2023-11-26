@@ -5,7 +5,8 @@ from flask_migrate import Migrate
 from PyPDF2 import PdfReader
 import re
 import openai
-
+from prettier import pretty
+from summarization import summarizate
 
 # Configure OpenAI with your API Key
 
@@ -68,6 +69,17 @@ def delete_pdf_text(pdf_text_id):
         return jsonify({"message": "PDF Text not found"}), 404
 
 
+@app.route('/get_summary_db/<int:pdf_text_id>', methods=['GET'])
+def get_summary_db(pdf_text_id):
+    pdf_text = PdfText.query.get(pdf_text_id)
+    if pdf_text:
+        summaries = PdfSummary.query.filter_by(pdf_text_id=pdf_text_id).all()
+        output = [{'id': summary.id, 'summary_text': summary.summary_text} for summary in summaries]
+        return jsonify(output), 200
+    else:
+        return jsonify({"message": "PDF Text not found"}), 404
+
+
 @app.route('/summarize_pdf', methods=['POST'])
 def summarize_pdf():
     data = request.json
@@ -81,21 +93,14 @@ def summarize_pdf():
         return jsonify({"error": "PDF text not found"}), 404
 
     try:
-        # Truncate the text to fit within the token limit
-        truncated_text = pdf_text_record.text[:4000]  # Adjust as needed
 
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=f"Summarize the following text:\n\n{truncated_text}",
-            max_tokens=150
-        )
-        summary = response.choices[0].text.strip()
+        summarized_text = summarizate(pdf_text_record.text)
 
-        new_summary = PdfSummary(summary_text=summary, pdf_text_id=pdf_text_id)
+        new_summary = PdfSummary(summary_text=summarized_text, pdf_text_id=pdf_text_id)
         db.session.add(new_summary)
         db.session.commit()
-
-        return jsonify({"summary": summary})
+        pretty_text = pretty(summarized_text)
+        return jsonify({"summary": pretty_text})
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": "An error occurred during summarization"}), 500

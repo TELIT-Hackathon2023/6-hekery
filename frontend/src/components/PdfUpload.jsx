@@ -2,13 +2,14 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { SummaryContext } from '../context/SummaryContext';
 import LoadingIndicator from './LoadingIndicator'; // Import the LoadingIndicator component
+import CustomLoadingIndicator from './LoadingIndicator';
 
 const PdfUpload = () => {
   const [pdfTexts, setPdfTexts] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const { updateSummary } = useContext(SummaryContext);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingState, setLoadingState] = useState('');
   // Fetch PDF texts
   const fetchPdfTexts = async () => {
     try {
@@ -52,15 +53,30 @@ const PdfUpload = () => {
 
   // Handle PDF click for summarization
   const handlePdfClick = async (pdfId) => {
-    setIsLoading(true); 
+    setLoadingState('analyzing');
     try {
       const response = await axios.post('/summarize_pdf', { pdf_text_id: pdfId });
+    
       updateSummary(response.data.summary);  // Ensure this matches the response structure
+      setLoadingState('scoring');
+      setTimeout(() => {
+        setLoadingState('dashboard');
+        setTimeout(() => {
+          setLoadingState(''); // Reset loading state
+        }, 2000); // Simulate dashboard creation time
+      }, 2000); // Simulate scoring time
     } catch (error) {
       console.error('Failed to summarize PDF:', error);
+      setLoadingState('scoring');
+      setTimeout(() => {
+        setLoadingState('dashboard');
+        setTimeout(() => {
+          setLoadingState(''); // Reset loading state
+        }, 2000); // Simulate dashboard creation time
+      }, 2000); // Simulate scoring time
       updateSummary('Summarization failed');
     }
-    setIsLoading(false); 
+  
   };
 
   useEffect(() => {
@@ -68,11 +84,12 @@ const PdfUpload = () => {
   }, []);
 
   return (
-    <div className="w-64 fixed top-0 left-0 bottom-0 bg-gray-800 p-6 overflow-y-auto">
-      {isLoading && <LoadingIndicator />}
-      <h2 className="text-md font-bold text-white mb-8">Upload RFP Document</h2>
+    <div className="w-1/4 fixed top-0 left-0 bottom-0 bg-white text-white p-6 overflow-y-auto">
+       {loadingState && <CustomLoadingIndicator className='z-50' loadingState={loadingState} />}
+
+      <h2 className="text-xl font-bold w-max  text-black p-4 text-center mb-8">Upload RFP Document</h2>
       <div className="flex flex-col items-center">
-        <label className="bg-blue-500 w-full text-center items-center cursor-pointer hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <label className="bg-[#e20274] w-full text-center items-center cursor-pointer hover:bg-[#b43777] text-white font-bold py-2 px-4 rounded">
           <span className="mt-2 text-base leading-normal">
             {isUploading && selectedFile ? `Uploading: ${selectedFile.name.substring(0, 10)}...` : 'Select a file'}
           </span>
@@ -84,7 +101,7 @@ const PdfUpload = () => {
           />
         </label>
         <button
-          className="bg-blue-500 w-full my-2 cursor-pointer hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-[#e20274] w-full my-2 cursor-pointer hover:bg-[#b43777]  text-white font-bold py-2 px-4 rounded"
           onClick={uploadPdf}
           disabled={!selectedFile || isUploading}
         >
