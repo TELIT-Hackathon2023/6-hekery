@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from PyPDF2 import PdfReader
 import re
 import openai
+from prettier import pretty
 from summarization import summarizate
 
 # Configure OpenAI with your API Key
@@ -81,14 +82,14 @@ def summarize_pdf():
         return jsonify({"error": "PDF text not found"}), 404
 
     try:
-        # Truncate the text to fit within the token limit
+
         summarized_text = summarizate(pdf_text_record.text)
 
         new_summary = PdfSummary(summary_text=summarized_text, pdf_text_id=pdf_text_id)
         db.session.add(new_summary)
         db.session.commit()
-
-        return jsonify({"summary": summarized_text})
+        pretty_text = pretty(summarized_text)
+        return jsonify({"summary": pretty_text})
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": "An error occurred during summarization"}), 500
