@@ -3,10 +3,14 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from PyPDF2 import PdfReader
+import pandas as pd
 import re
 import openai
 #from prettier import pretty
 from summarization import summarizate
+from joblib import load
+# Load your trained model
+model = load('model/my_model.joblib')
 
 # Configure OpenAI with your API Key
 
@@ -156,6 +160,10 @@ def input_data(pdf_text_id):
     # Return the scores as a dictionary
     return jsonify(scores)
 
+def predict_loan_payment(input_data):
+    input_data = pd.DataFrame(input_data, index=[0])
+    prediction = model.predict(input_data)  # Use the .predict() method
+    return prediction[0]
 
 def init_db():
     db.create_all()
